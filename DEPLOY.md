@@ -61,12 +61,11 @@ Cost: about $7/month for the Starter server plus about $0.25/month for a 1 GB di
 
 ## Connecting the domain (once Julie owns it)
 
-1. In the Render service, go to **Settings > Custom Domains** and add `twincitiestacobell50k.org`
-   (and `www.twincitiestacobell50k.org`).
+1. In the Render service, go to **Settings > Custom Domains** and add `twincitiestacobell50k.com`
+   (and `www.twincitiestacobell50k.com`).
 2. Render shows the DNS records to add. In Porkbun, open the domain's **DNS** settings and enter
    exactly those records.
 3. Wait for Render to verify. HTTPS is set up automatically.
-4. If you bought the `.com` too, set up forwarding to the `.org` in Porkbun.
 
 ## Afterward
 
