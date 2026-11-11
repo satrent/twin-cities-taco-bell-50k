@@ -1,0 +1,5 @@
+node_modules/
+# Runner personal data and the generated admin password live here
+data/
+# Local editor and Claude settings
+.claude/

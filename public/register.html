@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Register | Twin Cities Taco Bell 50k</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/site.css">
+</head>
+<body class="page-form">
+  <header class="topbar">
+    <a class="wordmark" href="/">TC Taco Bell <span>50k</span></a>
+    <nav aria-label="Main"><a href="/">Back to race info</a></nav>
+  </header>
+
+  <main class="form-page">
+    <div class="form-head">
+      <h1>Register for the <span data-bind="year">2027</span> race</h1>
+      <p><span data-bind="raceDate">Date coming soon</span> · $<span data-bind="fee">85</span> · <span data-spots-text></span></p>
+    </div>
+
+    <p class="banner" id="waitlist-banner" hidden><strong>We're at capacity.</strong> You can still sign up below and you'll join the waitlist. You won't be asked to pay unless a spot opens.</p>
+
+    <!-- Open or waitlist -->
+    <form id="register" novalidate hidden>
+      <fieldset>
+        <legend>About you</legend>
+        <div class="grid">
+          <label>First name <input name="first_name" autocomplete="given-name" required></label>
+          <label>Last name <input name="last_name" autocomplete="family-name" required></label>
+          <label>Email <input name="email" type="email" autocomplete="email" required></label>
+          <label>Phone <input name="phone" type="tel" autocomplete="tel" required></label>
+          <label class="wide">Hometown <span class="opt">(optional)</span> <input name="hometown" placeholder="City, State" autocomplete="off"></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Your race</legend>
+        <div class="grid">
+          <label>Prize category <select name="category" required></select></label>
+          <label>T-shirt size (unisex) <select name="shirt_size" required></select></label>
+          <label>Dietary needs <select name="diet" required></select></label>
+          <label class="wide">Anything we should know? <span class="opt">(optional)</span>
+            <textarea name="runner_notes" rows="3" placeholder="Dietary details, handcycle or wheelchair, questions..."></textarea>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Emergency contact</legend>
+        <div class="grid">
+          <label>Name <input name="emergency_name" autocomplete="off" required></label>
+          <label>Phone <input name="emergency_phone" type="tel" autocomplete="off" required></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Waiver</legend>
+        <div class="waiver" tabindex="0" aria-label="Waiver text">
+          <h3>Acknowledgment and Assumption of Risk</h3>
+          <p>Participants in the Taco Bell 50k acknowledge that their participation involves inherent risks, including, but not limited to, physical injury, illness, death, property damage, and other dangers that may occur. Participants understand these risks, whether they are known or unknown, anticipated or unanticipated, and voluntarily choose to participate in the event.</p>
+          <h3>Liability</h3>
+          <p>In consideration of being allowed to participate in the Taco Bell 50k, participants hereby release, discharge, and hold harmless the Taco Bell 50k organizers, its officers, directors, employees, volunteers, agents, and any other associated parties (collectively, the "Released Parties") from any and all liabilities, claims, demands, or causes of action that may arise for injuries, damages, or losses related to their participation in the event, including, but not limited to, those caused by the negligence or fault of the Released Parties.</p>
+          <h3>Refunds</h3>
+          <p>Runners who drop out after the refund cutoff (<span data-bind="refundCutoff">To be announced</span>) will not receive refunds. If the run is cancelled due to weather and the supplies have already been purchased, refunds will not be issued.</p>
+        </div>
+        <label class="check"><input type="checkbox" name="is_adult"> I am 18 or older.</label>
+        <label class="check"><input type="checkbox" name="waiver_accepted"> I have read and agree to the waiver above.</label>
+        <label>Type your full name to sign <input name="waiver_signature" autocomplete="off" required></label>
+      </fieldset>
+
+      <label class="hp" aria-hidden="true">Website <input name="website" tabindex="-1" autocomplete="off"></label>
+      <p class="form-error" id="form-error" role="alert" hidden></p>
+      <button class="btn btn-primary" type="submit" id="submit">Save my spot</button>
+    </form>
+
+    <!-- Success -->
+    <section id="done" class="done" tabindex="-1" hidden>
+      <h2 id="done-title"></h2>
+      <p>Your confirmation code</p>
+      <p class="code" id="done-code"></p>
+      <p id="done-next"></p>
+      <p><a class="btn" href="/">Back to race info</a></p>
+    </section>
+
+    <!-- Closed -->
+    <section id="closed" hidden>
+      <div class="banner"><strong id="closed-title">Registration isn't open right now.</strong> <span id="closed-text">Leave your email and we'll tell you when it opens (if we dare to do this again).</span></div>
+      <form id="notify" novalidate>
+        <fieldset>
+          <div class="grid">
+            <label>Name <span class="opt">(optional)</span> <input name="name" autocomplete="name"></label>
+            <label>Email <input name="email" type="email" autocomplete="email" required></label>
+          </div>
+        </fieldset>
+        <label class="hp" aria-hidden="true">Website <input name="website" tabindex="-1" autocomplete="off"></label>
+        <p class="form-error" id="notify-error" role="alert" hidden></p>
+        <button class="btn btn-primary" type="submit">Notify me</button>
+      </form>
+      <p class="done-note" id="notify-done" role="status" hidden>You're on the list. Start your gastric training.</p>
+    </section>
+  </main>
+
+  <footer class="footer footer-small">
+    <p class="fine">This event is not sponsored by or endorsed by Taco Bell Corp.</p>
+  </footer>
+  <script src="/js/site.js"></script>
+  <script src="/js/register.js"></script>
+</body>
+</html>
