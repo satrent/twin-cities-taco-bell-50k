@@ -28,7 +28,7 @@ async function api(path, options = {}) {
 }
 
 const $ = (id) => document.getElementById(id);
-const TABS = ['dashboard', 'runners', 'notify', 'settings'];
+const TABS = ['dashboard', 'runners', 'notify', 'settings', 'data'];
 const money = (n) => `$${n.toLocaleString('en-US')}`;
 const shortDate = (iso) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 const fullDate = (iso) => new Date(iso).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
@@ -53,7 +53,7 @@ async function showTab(tab) {
   });
   if (location.hash.slice(1) !== tab) history.replaceState(null, '', `#${tab}`);
   try {
-    await { dashboard: loadDashboard, runners: loadRunners, notify: loadNotify, settings: loadSettings }[tab]();
+    await { dashboard: loadDashboard, runners: loadRunners, notify: loadNotify, settings: loadSettings, data: loadDataTools }[tab]();
   } catch (err) {
     if (!(err instanceof AuthError)) toast(err.message);
   }
@@ -277,6 +277,67 @@ async function loadSettings() {
     if (form.elements[key]) form.elements[key].value = value;
   });
 }
+
+// ---------- Backups & new year ----------
+let dataStatus = null;
+
+function updateNewYearButton() {
+  const form = $('new-year');
+  const ready = dataStatus?.backupCurrent && form.elements.confirm.value.trim() === 'DELETE' && /^20\d\d$/.test(form.elements.year.value.trim());
+  $('new-year-submit').disabled = !ready;
+}
+
+async function loadDataTools() {
+  dataStatus = await api('/data-status');
+  const s = dataStatus;
+  const runners = `${s.runners} ${s.runners === 1 ? 'runner' : 'runners'}`;
+  $('backup-status').textContent = s.lastBackupAt
+    ? `Last backup: ${fullDate(s.lastBackupAt)}. ${s.backupCurrent ? 'Nothing has changed since then.' : 'Runner or notify-list data has changed since then.'}`
+    : 'No backup has been downloaded yet.';
+  $('notify-total').textContent = String(s.notify);
+  const status = $('new-year-status');
+  status.className = `data-status ${s.backupCurrent ? 'ok' : 'warn'}`;
+  status.textContent = s.backupCurrent
+    ? `Your backup is up to date. ${runners} will be deleted.`
+    : `Download a backup first (step 1). It has to be newer than the latest change. ${runners} on file.`;
+  const year = $('new-year').elements.year;
+  if (!year.value) year.value = String(s.year + 1);
+  updateNewYearButton();
+}
+
+$('backup-link').addEventListener('click', () => {
+  // The browser handles the download itself. Refresh the status once it has had time to finish.
+  $('backup-status').textContent = 'Preparing your backup...';
+  setTimeout(() => loadDataTools().catch(() => {}), 2500);
+});
+
+['input', 'change'].forEach((type) => $('new-year').addEventListener(type, updateNewYearButton));
+
+$('new-year').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const form = event.target;
+  const error = $('new-year-error');
+  error.hidden = true;
+  $('new-year-submit').disabled = true;
+  try {
+    const result = await api('/new-year', {
+      method: 'POST',
+      body: JSON.stringify({
+        year: form.elements.year.value.trim(),
+        confirm: form.elements.confirm.value.trim(),
+        clear_notify: form.elements.clear_notify.checked
+      })
+    });
+    form.reset();
+    toast(`Deleted ${result.removedRunners} runners${result.removedNotify ? ` and ${result.removedNotify} notify-list entries` : ''}. The site is set up for ${result.year}.`);
+    await loadDataTools();
+  } catch (err) {
+    if (err instanceof AuthError) return;
+    error.textContent = err.message;
+    error.hidden = false;
+    await loadDataTools().catch(() => {});
+  }
+});
 
 // ---------- Wiring ----------
 document.querySelectorAll('#admin-nav [data-tab]').forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));

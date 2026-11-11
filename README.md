@@ -28,6 +28,9 @@ The first start generates an admin password in `data/admin-password.txt`. In pro
 
 The date, fee, capacity, and registration open/closed state are all edited in Admin > Settings.
 
+Admin > **Backups & new year** downloads a full database backup and, separately, clears runner
+data to set the site up for the next race.
+
 Registration has three modes: **Coming soon** and **Closed** both collect a notify list, and
 **Open** takes sign-ups. A new database starts at Coming soon.
 

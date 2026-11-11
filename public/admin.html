@@ -19,6 +19,7 @@
       <button type="button" data-tab="runners">Runners</button>
       <button type="button" data-tab="notify">Notify list</button>
       <button type="button" data-tab="settings">Settings</button>
+      <button type="button" data-tab="data">Backups &amp; new year</button>
       <button type="button" id="logout">Log out</button>
     </nav>
   </header>
@@ -103,6 +104,35 @@
           <span id="settings-saved" role="status"></span>
         </div>
       </form>
+    </section>
+    <section id="tab-data" hidden>
+      <div class="toolbar"><h1>Backups &amp; new year</h1></div>
+      <div class="data-tools">
+        <div class="panel">
+          <h2>1. Download a backup</h2>
+          <p>Saves a complete copy of the site's data: every runner from every year, the notify list, and the settings. Keep it somewhere safe, because it contains runners' personal information.</p>
+          <p class="data-status" id="backup-status" role="status"></p>
+          <a class="btn btn-primary btn-small" id="backup-link" href="/api/admin/backup">Download backup</a>
+          <p class="hint">To look through runners in a spreadsheet, use <strong>Runners &gt; Export CSV</strong> instead. The backup file is for restoring the site if something goes wrong.</p>
+        </div>
+
+        <form class="panel" id="new-year">
+          <h2>2. Start a new year</h2>
+          <p><strong>This permanently deletes every runner</strong>, including emergency contacts, waivers, bibs, and notes, from every year. Then it gets the site ready for the next race:</p>
+          <ul>
+            <li>The race year changes to the year you enter below.</li>
+            <li>Registration switches to <strong>Coming soon</strong>.</li>
+            <li>The race date, deadlines, refund cutoff, and packet pickup go back to "To be announced."</li>
+            <li>The fee, capacity, start time, and payment instructions stay as they are.</li>
+          </ul>
+          <p class="data-status" id="new-year-status" role="status"></p>
+          <label>Next race year <input name="year" inputmode="numeric" required></label>
+          <label class="check"><input type="checkbox" name="clear_notify"> Also delete the notify list (<span id="notify-total">0</span> people). Usually you'll want to keep it, since those are the people waiting to hear about the next race.</label>
+          <label>Type <strong>DELETE</strong> to confirm <input name="confirm" autocomplete="off" required></label>
+          <p class="form-error" id="new-year-error" role="alert" hidden></p>
+          <button class="btn btn-danger" type="submit" id="new-year-submit" disabled>Delete runners and start new year</button>
+        </form>
+      </div>
     </section>
   </main>
 

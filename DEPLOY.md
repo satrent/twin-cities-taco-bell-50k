@@ -80,8 +80,13 @@ Cost: about $7/month for the Starter server plus about $0.25/month for a 1 GB di
 - **Opening registration:** Admin > Settings > Registration > **Open**, once the date, capacity,
   fee, and deadlines are filled in.
 - **Backups:** Render snapshots the disk once a day and keeps each snapshot for 7 days. A restore
-  replaces the whole disk and loses anything since that snapshot, so also download the runner CSV from
-  the admin regularly.
+  replaces the whole disk and loses anything since that snapshot. For a copy you keep yourself, use
+  Admin > **Backups & new year** > **Download backup**. It's a complete copy of the database, so
+  store it somewhere private.
+- **After the race:** in Admin > **Backups & new year**, download a backup, then use
+  **Start a new year**. It deletes every runner (the notify list is kept unless you choose otherwise),
+  sets the new race year, switches registration to Coming soon, and resets the dates to
+  "To be announced." It refuses to run unless a backup has been downloaded since the last change.
 - **Changing the admin password (Julie):** edit `ADMIN_PASSWORD` under the service's Environment
   settings and save. Render redeploys, and everyone gets logged out.
 - **Demo data never goes live.** `npm run seed` and `npm run reset` refuse to run when

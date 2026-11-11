@@ -74,3 +74,17 @@ dialog dd { margin: 0; overflow-wrap: anywhere; }
 .save-row { display: flex; align-items: center; gap: 12px; }
 
 .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 50; padding: 10px 16px; border-radius: 8px; background: var(--ink); color: #fff; font-weight: 500; }
+
+/* Backups & new year */
+.data-tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; align-items: start; max-width: 1040px; }
+.data-tools p, .data-tools ul { margin: 0 0 12px; font-size: .95rem; }
+.data-tools ul { padding-left: 20px; }
+.data-tools label { margin-bottom: 12px; }
+.data-tools .check { font-weight: 400; }
+.data-status { padding: 10px 12px; border-radius: 6px; background: #f6efe9; font-weight: 500; }
+.data-status.ok { background: #e6f4ea; color: #1d5b2c; }
+.data-status.warn { background: #fff2dd; color: #6b4200; }
+.hint { color: var(--muted); font-size: .88rem !important; margin-top: 12px !important; }
+.btn-danger { background: #a81c20; border-color: #a81c20; color: #fff; }
+.btn-danger:hover { background: #8c1619; border-color: #8c1619; color: #fff; }
+.btn-danger:disabled { background: #d9b8b9; border-color: #d9b8b9; cursor: not-allowed; opacity: 1; }

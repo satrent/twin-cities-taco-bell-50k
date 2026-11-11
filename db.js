@@ -10,6 +10,8 @@ mkdirSync(dataDir, { recursive: true });
 export const db = new DatabaseSync(join(dataDir, 'taco50k.db'));
 db.exec(`
   PRAGMA journal_mode = WAL;
+  -- Overwrite deleted rows with zeros so removed personal data doesn't linger in the file.
+  PRAGMA secure_delete = ON;
 
   CREATE TABLE IF NOT EXISTS settings (
     key   TEXT PRIMARY KEY,
@@ -81,6 +83,19 @@ const upsert = db.prepare(
 );
 export function saveSettings(values) {
   for (const [key, value] of Object.entries(values)) upsert.run(key, String(value));
+}
+
+// Bookkeeping for the backup and new-year tools. Kept out of DEFAULT_SETTINGS so the
+// settings form can't change them.
+export function getMeta(key) {
+  return db.prepare('SELECT value FROM settings WHERE key = ?').get(key)?.value || '';
+}
+export function setMeta(key, value) {
+  upsert.run(key, value);
+}
+/** Call whenever runner or notify-list data changes, so we know whether the last backup is current. */
+export function markDataChanged() {
+  setMeta('data_changed_at', new Date().toISOString());
 }
 
 export function registeredCount(year) {

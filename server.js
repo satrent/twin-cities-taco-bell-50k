@@ -1,9 +1,11 @@
 import express from 'express';
 import crypto from 'node:crypto';
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { db, dataDir, getSettings, saveSettings, registeredCount, DEFAULT_SETTINGS } from './db.js';
+import {
+  db, dataDir, getSettings, saveSettings, registeredCount, DEFAULT_SETTINGS, getMeta, setMeta, markDataChanged
+} from './db.js';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 3050;
@@ -195,6 +197,7 @@ app.post('/api/register', (req, res) => {
     }
     throw err;
   }
+  markDataChanged();
   res.status(201).json({
     code,
     status,
@@ -211,8 +214,9 @@ app.post('/api/notify', (req, res) => {
   const email = clean(req.body?.email, 200).toLowerCase();
   if (clean(req.body?.website)) return res.json({ ok: true });
   if (!isEmail(email)) return res.status(400).json({ error: 'Please enter a valid email address.' });
-  db.prepare('INSERT OR IGNORE INTO notify_list (name, email, created_at) VALUES (?, ?, ?)')
+  const added = db.prepare('INSERT OR IGNORE INTO notify_list (name, email, created_at) VALUES (?, ?, ?)')
     .run(clean(req.body?.name, 120), email, new Date().toISOString());
+  if (added.changes) markDataChanged();
   res.json({ ok: true });
 });
 
@@ -309,7 +313,83 @@ admin.patch('/registrations/:id', (req, res) => {
   if (!updates.length) return res.status(400).json({ error: 'Nothing to update.' });
   const result = db.prepare(`UPDATE registrations SET ${updates.join(', ')} WHERE id = ?`).run(...values, id);
   if (!result.changes) return res.status(404).json({ error: 'Runner not found.' });
+  markDataChanged();
   res.json(db.prepare('SELECT * FROM registrations WHERE id = ?').get(id));
+});
+
+// ---------- Backup and new-year tools ----------
+function dataStatus() {
+  const settings = getSettings();
+  const lastBackupAt = getMeta('last_backup_at');
+  const dataChangedAt = getMeta('data_changed_at');
+  const runners = db.prepare('SELECT COUNT(*) AS n FROM registrations').get().n;
+  const notify = db.prepare('SELECT COUNT(*) AS n FROM notify_list').get().n;
+  return {
+    year: Number(settings.year),
+    runners,
+    notify,
+    lastBackupAt: lastBackupAt || null,
+    // A backup counts as current only if nothing has changed since it was downloaded.
+    backupCurrent: Boolean(lastBackupAt) && (!dataChangedAt || lastBackupAt > dataChangedAt)
+  };
+}
+
+admin.get('/data-status', (req, res) => res.json(dataStatus()));
+
+// Tool 1: download a complete copy of the database (runners from every year, notify list, settings).
+admin.get('/backup', (req, res, next) => {
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const tmp = join(dataDir, `backup-${stamp}-${crypto.randomBytes(4).toString('hex')}.db`);
+  try {
+    db.prepare('VACUUM INTO ?').run(tmp);
+  } catch (err) {
+    return next(err);
+  }
+  const startedAt = new Date().toISOString();
+  res.download(tmp, `taco-bell-50k-backup-${stamp.slice(0, 10)}.db`, (err) => {
+    try { unlinkSync(tmp); } catch {}
+    // Only count the backup once the whole file reached the browser.
+    if (!err) setMeta('last_backup_at', startedAt);
+  });
+});
+
+// Tool 2: delete runner data and set the site up for the next race.
+admin.post('/new-year', (req, res) => {
+  const b = req.body || {};
+  const status = dataStatus();
+  if (!status.backupCurrent) {
+    return res.status(409).json({ error: 'Download a fresh backup first. The data has changed since the last one.' });
+  }
+  if (b.confirm !== 'DELETE') return res.status(400).json({ error: 'Type DELETE to confirm.' });
+  const nextYear = String(b.year ?? '');
+  if (!/^20\d\d$/.test(nextYear)) return res.status(400).json({ error: 'Enter the next race year, like 2028.' });
+  const clearNotify = b.clear_notify === true;
+
+  db.exec('BEGIN IMMEDIATE');
+  let removedRunners;
+  let removedNotify = 0;
+  try {
+    removedRunners = db.prepare('DELETE FROM registrations').run().changes;
+    if (clearNotify) removedNotify = db.prepare('DELETE FROM notify_list').run().changes;
+    // Dates and deadlines go back to placeholders; fee, capacity and payment text carry over.
+    saveSettings({
+      year: nextYear,
+      registration_mode: 'soon',
+      race_date: DEFAULT_SETTINGS.race_date,
+      deadline: DEFAULT_SETTINGS.deadline,
+      refund_cutoff: DEFAULT_SETTINGS.refund_cutoff,
+      packet_pickup: DEFAULT_SETTINGS.packet_pickup
+    });
+    db.exec('COMMIT');
+  } catch (err) {
+    db.exec('ROLLBACK');
+    throw err;
+  }
+  markDataChanged();
+  // Rebuild the file and flush the write-ahead log, so deleted personal data doesn't linger on disk.
+  db.exec('VACUUM');
+  db.exec('PRAGMA wal_checkpoint(TRUNCATE)');
+  res.json({ removedRunners, removedNotify, year: Number(nextYear) });
 });
 
 admin.get('/notify', (req, res) => {
