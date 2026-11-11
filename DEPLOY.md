@@ -9,9 +9,10 @@ Cost: about $7/month for the Starter server plus about $0.25/month for a 1 GB di
 ## Before the screen share
 
 **Trent**
-- [ ] Push this repo to a **public** GitHub repository. The `data/` folder (runner data and the
-      local admin password) is excluded by `.gitignore`, so it never gets uploaded.
-- [ ] Have the repository's URL ready, such as `https://github.com/<you>/twin-cities-taco-bell-50k`.
+- [x] Push this repo to the public GitHub repository
+      **https://github.com/satrent/twin-cities-taco-bell-50k**. The `data/` folder (runner data and
+      the local admin password) is excluded by `.gitignore`, so it never gets uploaded.
+- [ ] Push any last changes to `main` before the screen share.
 
 **Julie**
 - [ ] Create the Render account, turn on two-factor authentication, and add a card under Billing.
@@ -22,7 +23,8 @@ Cost: about $7/month for the Starter server plus about $0.25/month for a 1 GB di
 ## On the screen share (Julie clicks, Trent guides)
 
 1. In the Render Dashboard, choose **New > Web Service**.
-2. Choose **Public Git Repository** and paste the GitHub URL.
+2. Choose **Public Git Repository** and paste:
+   `https://github.com/satrent/twin-cities-taco-bell-50k`
 3. Fill in:
 
    | Setting | Value |
