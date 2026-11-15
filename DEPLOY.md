@@ -77,6 +77,10 @@ Cost: about $7/month for the Starter server plus about $0.25/month for a 1 GB di
 
   Each deploy takes the site offline for about a minute, because a service with a disk stops the old
   copy before starting the new one. Avoid deploying while registration is busy.
+- **Letting search engines list the site:** the site tells search engines not to list it until
+  you're ready. To go public, add `SEARCH_INDEXING` with the value `on` under the service's
+  **Environment** settings and save. Render redeploys. To hide it again, delete the variable and save.
+  It can take search engines days or weeks to notice either change.
 - **Opening registration:** Admin > Settings > Registration > **Open**, once the date, capacity,
   fee, and deadlines are filled in.
 - **Backups:** Render snapshots the disk once a day and keeps each snapshot for 7 days. A restore

@@ -10,6 +10,7 @@ import {
 const root = dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 3050;
 const isProd = process.env.NODE_ENV === 'production';
+const allowIndexing = process.env.SEARCH_INDEXING === 'on';
 
 export const SHIRT_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
 export const CATEGORIES = ["Men's", "Women's", 'Nonbinary', 'Just here for the burritos'];
@@ -129,6 +130,8 @@ app.use((req, res, next) => {
       "base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
   });
   if (isProd) res.set('Strict-Transport-Security', 'max-age=31536000');
+  // Keep the site out of search results until an organizer sets SEARCH_INDEXING=on.
+  if (!allowIndexing) res.set('X-Robots-Tag', 'noindex, nofollow');
   next();
 });
 
@@ -483,6 +486,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong. Please try again.' });
 });
 
-app.listen(PORT, () =>
-  console.log(isProd ? `Taco Bell 50k site listening on port ${PORT}` : `Taco Bell 50k site running at http://localhost:${PORT}`)
-);
+app.listen(PORT, () => {
+  console.log(isProd ? `Taco Bell 50k site listening on port ${PORT}` : `Taco Bell 50k site running at http://localhost:${PORT}`);
+  console.log(allowIndexing ? 'Search engines may list the site.' : 'Hidden from search engines (set SEARCH_INDEXING=on to allow).');
+});
