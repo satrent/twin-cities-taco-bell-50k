@@ -17,7 +17,7 @@
 
   <main class="form-page">
     <div class="form-head">
-      <h1>Register for the <span data-bind="year">2027</span> race</h1>
+      <h1 id="page-title">Register for the <span data-bind="year">2027</span> race</h1>
       <p><span data-bind="raceDate">Date coming soon</span> · $<span data-bind="fee">85</span> · <span data-spots-text></span></p>
     </div>
 
@@ -87,12 +87,13 @@
 
     <!-- Closed -->
     <section id="closed" hidden>
-      <div class="banner"><strong id="closed-title">Registration isn't open right now.</strong> <span id="closed-text">Leave your email and we'll tell you when it opens (if we dare to do this again).</span></div>
+      <div class="banner"><strong id="closed-title">Registration isn't open right now.</strong> <span id="closed-text">Leave your name and email and we'll tell you when it opens (if we dare to do this again).</span></div>
       <form id="notify" novalidate>
         <fieldset>
           <div class="grid">
-            <label>Name <span class="opt">(optional)</span> <input name="name" autocomplete="name"></label>
-            <label>Email <input name="email" type="email" autocomplete="email" required></label>
+            <label>First name <input name="first_name" autocomplete="given-name" required></label>
+            <label>Last name <input name="last_name" autocomplete="family-name" required></label>
+            <label class="wide">Email <input name="email" type="email" autocomplete="email" required></label>
           </div>
         </fieldset>
         <label class="hp" aria-hidden="true">Website <input name="website" tabindex="-1" autocomplete="off"></label>

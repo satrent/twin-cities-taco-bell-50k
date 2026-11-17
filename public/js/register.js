@@ -11,10 +11,14 @@ function fillSelect(name, options) {
 window.eventInfo
   .then((info) => {
     const spotsText = document.querySelector('[data-spots-text]');
+    if (info.status === 'soon' || info.status === 'closed') {
+      document.getElementById('page-title').textContent = 'Get notified';
+      document.title = 'Get notified | Twin Cities Taco Bell 50k';
+    }
     if (info.status === 'soon') {
       spotsText.textContent = 'Registration opens soon';
       document.getElementById('closed-title').textContent = 'Registration opens soon!';
-      document.getElementById('closed-text').textContent = "Leave your email and we'll let you know the moment it opens.";
+      document.getElementById('closed-text').textContent = "Leave your name and email and we'll let you know the moment it opens.";
       document.getElementById('closed').hidden = false;
       return;
     }

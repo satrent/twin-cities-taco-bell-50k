@@ -48,10 +48,18 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS notify_list (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     name       TEXT NOT NULL DEFAULT '',
+    first_name TEXT NOT NULL DEFAULT '',
+    last_name  TEXT NOT NULL DEFAULT '',
     email      TEXT NOT NULL UNIQUE COLLATE NOCASE,
     created_at TEXT NOT NULL
   );
 `);
+
+// Databases made before the notify form asked for first and last name separately.
+const notifyColumns = db.prepare('PRAGMA table_info(notify_list)').all().map((c) => c.name);
+for (const col of ['first_name', 'last_name']) {
+  if (!notifyColumns.includes(col)) db.exec(`ALTER TABLE notify_list ADD COLUMN ${col} TEXT NOT NULL DEFAULT ''`);
+}
 
 // Everything an organizer might change year to year. Editable in Admin > Settings.
 export const DEFAULT_SETTINGS = {

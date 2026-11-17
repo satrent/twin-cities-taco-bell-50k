@@ -44,9 +44,10 @@ for (let i = 0; i < COUNT; i++) {
   );
 }
 
-const notify = db.prepare('INSERT OR IGNORE INTO notify_list (name, email, created_at) VALUES (?, ?, ?)');
+const notify = db.prepare('INSERT OR IGNORE INTO notify_list (name, first_name, last_name, email, created_at) VALUES (?, ?, ?, ?, ?)');
 for (let i = 0; i < 23; i++) {
-  notify.run(`${pick(first)} ${pick(last)}`, `hopeful.${i}@example.com`, new Date(Date.now() - Math.random() * 90 * 86400000).toISOString());
+  const [f, l] = [pick(first), pick(last)];
+  notify.run(`${f} ${l}`, f, l, `hopeful.${i}@example.com`, new Date(Date.now() - Math.random() * 90 * 86400000).toISOString());
 }
 const n = db.prepare('SELECT COUNT(*) AS n FROM registrations').get().n;
 console.log(`Demo data ready: ${n} registrations. Clear with: npm run reset`);

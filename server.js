@@ -232,10 +232,15 @@ app.post('/api/notify', (req, res) => {
     return res.status(429).json({ error: 'Too many attempts. Please try again later.' });
   }
   const email = clean(req.body?.email, 200).toLowerCase();
+  const firstName = clean(req.body?.first_name, 80);
+  const lastName = clean(req.body?.last_name, 80);
   if (clean(req.body?.website)) return res.json({ ok: true });
+  if (!firstName) return res.status(400).json({ error: 'Please enter your first name.' });
+  if (!lastName) return res.status(400).json({ error: 'Please enter your last name.' });
   if (!isEmail(email)) return res.status(400).json({ error: 'Please enter a valid email address.' });
-  const added = db.prepare('INSERT OR IGNORE INTO notify_list (name, email, created_at) VALUES (?, ?, ?)')
-    .run(clean(req.body?.name, 120), email, new Date().toISOString());
+  const added = db
+    .prepare('INSERT OR IGNORE INTO notify_list (name, first_name, last_name, email, created_at) VALUES (?, ?, ?, ?, ?)')
+    .run(`${firstName} ${lastName}`, firstName, lastName, email, new Date().toISOString());
   if (added.changes) markDataChanged();
   res.json({ ok: true });
 });
@@ -467,7 +472,8 @@ admin.get('/export/registrations.csv', (req, res) => {
 admin.get('/export/notify.csv', (req, res) => {
   const rows = db.prepare('SELECT * FROM notify_list ORDER BY created_at').all();
   sendCsv(res, 'taco-bell-50k-notify-list.csv', [
-    ['Name', (r) => r.name], ['Email', (r) => r.email], ['Signed up', (r) => r.created_at]
+    ['First name', (r) => r.first_name], ['Last name', (r) => r.last_name], ['Full name', (r) => r.name],
+    ['Email', (r) => r.email], ['Signed up', (r) => r.created_at]
   ], rows);
 });
 
