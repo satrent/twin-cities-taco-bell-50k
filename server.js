@@ -99,25 +99,10 @@ function publicStatus(settings) {
 // ---------- App ----------
 const app = express();
 app.disable('x-powered-by');
-app.set('trust proxy', isProd ? 1 : false);
+// On Render, requests pass through two proxies: Cloudflare, then Render's load balancer. Trusting
+// both makes req.ip the visitor's address (not a Cloudflare server's), so rate limits work per person.
+app.set('trust proxy', isProd ? 2 : false);
 app.use(express.json({ limit: '20kb' }));
-
-// TEMPORARY: log the proxy headers on the first few home-page visits, to count how many proxies
-// Render puts in front of us and set 'trust proxy' correctly. Remove once that's done.
-let proxyChecks = 0;
-app.use((req, res, next) => {
-  if (req.path === '/' && proxyChecks < 5) {
-    proxyChecks++;
-    console.log('[proxy-check]', JSON.stringify({
-      socket: req.socket.remoteAddress,
-      xff: req.headers['x-forwarded-for'] || null,
-      cfIp: req.headers['cf-connecting-ip'] || null,
-      realIp: req.headers['x-real-ip'] || null,
-      reqIp: req.ip
-    }));
-  }
-  next();
-});
 
 app.use((req, res, next) => {
   res.set({
